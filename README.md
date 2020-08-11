@@ -40,4 +40,4 @@ in the same command line the user can use the different options that belong to e
 # AUTHOR
 
 Christian bedoya <1642@holbertonschool.com>
-Daniel Lorenzo <@holbertonschool.com>
+Daniel Lorenzo <2054@holbertonschool.com>

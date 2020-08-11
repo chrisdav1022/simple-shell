@@ -1,0 +1,92 @@
+.TH Shell "16 april 2020" "0.01"
+.SH NAME
+.B Shell manual
+- Command interfaces between the machine and the user
+.SH SYNOPSIS
+.B ./hsh [user options]
+.SH DESCRIPTION
+A command interface between the machine and the user that receives commands that are executed respectively
+.SH
+the input argument is an executable command followed by options or parameters taken by that command
+it will take the first command with options if you have them and execute them, then it will exit.
+.SH
+the result is the execution of the command, in case of failure return -1.
+.SH EXAMPLE CORRECT WAY OF USE
+.PP
+$ /bin/sh
+.PP
+$ ls
+.PP
+$ ./shell.c
+.PP
+ exit
+.PP
+$
+.PP
+.SH EXAMPLE OF WRONG MODE OF USE
+.PP
+$ echo "/bin/ls" | ./sh
+.PP
+$ ./sh | /bin/ls
+.PP
+(cases may vary)
+.SH BUILT-IN COMMANDS
+The built-in command is used for executing the built-in shell,
+pass it bits and get the status of the output, and is also used to change a command so that it has the original functionality of the shell.
+.PP
+.PP
+
+.B wait
+.PP
+- puts the father on hold while the son finishes the process
+.PP
+.PP
+.B fork
+.PP
+- create another child process, this one copies the parent code and runs, the parent is put on wait while the child ends the process, at the end the parent exits wait and continues.
+.PP
+.PP
+.B getline
+.PP
+- this process takes the data written by the user allocates it and saves it.
+.RE
+.PP
+.B strtok
+.PP
+- separates or breaks strings or tokens down to their delimiters, a single string can have multiple delimiters, and can take the values in each space of the array
+.RE
+.PP
+.B execve
+.PP
+- execve is responsible for executing the files or commands
+.PP 
+.B PATH
+
+.PP
+- 
+.PP
+.RS
+.PP
+.B exit
+.PP
+.PP
+-kills the shell by returning an exit status of the command that was executed
+.PP
+.pp
+.SH ENVIRONMENT
+.PP
+modifications that can be made to the shell for the user's comfort
+user log,
+user id,
+numerical value,
+user's home,
+pwd,
+ppid shell.
+
+.PP
+.SH SEE ALSO
+.B bash, sh, printf.
+
+.SH AUTHOR
+Christian Bedoya
+Daniel Lorenzo
