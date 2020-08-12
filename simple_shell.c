@@ -1,27 +1,25 @@
 #include "holberton.h"
 /**
- * main - simple_shell main function
- * @argv: arguments entry
- * @argc: arguments number
- * Return: 0 on success
+ * main - shell main function (calls read, token & exe)
+ * @argc: number of arguments
+ * @argv: list of arguments
+ * Return: 0
  **/
-
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-(void)argc;
 char *line;
 char **args;
 int status;
 
 do {
-write(STDOUT_FILENO, "$ ", 2); /* imprime prompt */
-line = hsh_read(); /* lee la linea de entrada */
-args = hsh_split(line); /* Tokeniza la linea */
-status = hsh_exe(args); /* determina si es builtin, comando o salida */
+printf("$ ");
+line = read_line();
+args = token_line(line);
+status = exe_line(args);
 
-free(line); /* libera puntero line */
-free(args); /* libera puntero args */
-} while (status); /* status es retorno de hsh_exe */
+free(line);
+free(args);
+} while (status);
+
 return (0);
 }
-

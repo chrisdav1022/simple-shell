@@ -1,14 +1,21 @@
 #ifndef _HOLBERTON_
 #define _HOLBERTON_
-
+/* header files */
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define BUFSIZE 64
-#define DELIM " \t\r\n\a"
+/* variables defined to use */
+#define BUFFERSIZE 100
+#define LIMIT " \t\r\n\a"
+/* functions for simple shell loop */
+char *read_line(void);
+char **token_line(char *line);
+int exe_line(char **args);
 
+/* functions for built in */
+int built_exit(char **args);
 
 #endif /* HOLBERTON */
