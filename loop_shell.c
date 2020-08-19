@@ -16,9 +16,11 @@ int (*builtin_f[]) (char **) = {
 char *read_line(void)
 {
 char *line = NULL;
-ssize_t bufsize = 0;
+size_t bufsize = 0;
+ssize_t getl = 0;
 
-if (getline(&line, &bufsize, stdin) == -1)
+getl = getline(&line, &bufsize, stdin);
+if (getl == -1)
   {
   if (feof(stdin))
   {

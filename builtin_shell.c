@@ -7,6 +7,6 @@
  **/
 int built_exit(char **args)
 {
-printf("hola");
+(void)args;
 return (0);
 }
