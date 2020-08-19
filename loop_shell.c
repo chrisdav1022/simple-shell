@@ -1,116 +1,82 @@
 #include "holberton.h"
-/* cambiar a struct para funciones built in */
-char *builtin_struct[] = {
-"exit",
-"NULL"
-};
-/* temporal - puntero a funciones built in */
-int (*builtin_f[]) (char **) = {
-&built_exit
-};
-
 /**
- * read_line - reads a line from stdin
- * Return: line readed
+ * _getline - function that reads line from stdin
+ * @buffer: line that is readed
+ * @size: size of the buffer
+ * Return: pointer to line
  **/
-char *read_line(void)
+char *_getline(char *buffer, size_t size)
 {
-char *line = NULL;
-ssize_t bufsize = 0;
+int checker = 0;
 
-if (getline(&line, &bufsize, stdin) == -1)
-  {
-  if (feof(stdin))
-  {
-  exit(EXIT_SUCCESS); /* EOF */
-  }
-  else
-  {
-perror("hsh: getline\n");
-exit(EXIT_FAILURE);
+checker = getline(&buffer, &size, stdin);
+
+if (checker == EOF) /* checking EOF */
+{
+free(buffer); /* free pointer memory */
+write(STDOUT_FILENO, "\n", 1); /* puts new line and exit */
+exit(0);
 }
+if (checker == 1 || checker == -1 || buffer == NULL)/*checking null & errors*/
+{
+free(buffer); /* free pointer memory and return */
+return (NULL);
 }
-return (line);/* retorna linea leida */
+return (buffer);
 }
 
 /**
- * token_line - convert a line into tokens
- * @line: to tokenize
- * Return: tokens
+ * _tokenline - functions that tokeize a line
+ * @buffer: buffer from _getline
+ * Return: tokens (command + arguments)
  **/
-char **token_line(char *line)
+char **_tokenline(char *buffer)
 {
-int position = 0;
-char **tokens = malloc(BUFFERSIZE * sizeof(char *));
-char *token;
+char *token = NULL;
+char **tokens = NULL;
+int iterator = 0;
 
-if (!tokens) /* comprobar asignacion de memoria */
-{
-fprintf(stderr, "lsh: allocation error\n");
-exit(EXIT_FAILURE);
-}
+tokens = malloc(sizeof(char *) * 5); /* memory for command + arguments */
+if (tokens == NULL) /* checking error on memry allocation */
+return (NULL);
 
-token = strtok(line, LIMIT);
+token = strtok(buffer, DELIM); /* DELIM = \n \t \r */
 while (token != NULL)
 {
-tokens[position] = token;
-position++;
-token = strtok(NULL, LIMIT);
+tokens[iterator] = token;
+token = strtok(NULL, DELIM);
+iterator++;
 }
-tokens[position] = NULL;
+tokens[iterator] = NULL;
 return (tokens);
 }
 
 /**
- * exe_line - search for matches on built in functions
- * @args: tokens to match
- * Return: position of the match
+ * exe_command - function that execute commands
+ * @args: command to execute
+ * Return: 0 on success | -1 on error
  **/
-int exe_line(char **args)
+int exe_command(char **args)
 {
-int i;
+pid_t pid_child = 0;
+int status = 0;
 
-if (args[0] == NULL)
-return (1);
+if (args == NULL) /* checking for command exist */
+return (-1);
 
-for (i = 0; builtin_struct[i] != NULL; i++)
+pid_child = fork(); /* fork process */
+if (pid_child < 0) /* checking for error on fork */
 {
-if (strcmp(args[0], builtin_struct[i]) == 0) /* busca f en built in struct */
-{
-return ((*builtin_f[i])(args));
+write(STDOUT_FILENO, "Fork error", 10);
+return (-1);
 }
-}
-return (launch_line(args)); /* si no es built in, ejecuta proceso */
-}
-
-/**
- * launch_line - execute the commands
- * @args: tokens to execute
- * Return: status updated
- **/
-int launch_line(char **args)
+else if (pid_child == 0)
 {
-pid_t pid;
-int status;
-
-pid = fork();
-if (pid == 0)
-{
-if (execvp(args[0], args) == -1)
-{
-perror("hsh");
-}
-exit(EXIT_FAILURE);
-}
-else if (pid < 0)
-{
-perror("hsh");
+if (execve(args[0], args, NULL) == -1)
+return (-1);
 }
 else
-{
-do {
-waitpid(pid, &status, WUNTRACED);
-} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-}
-return (1);
+pid_child = wait(&status);
+
+return (0);
 }
