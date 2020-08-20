@@ -37,7 +37,7 @@ Among the most used commands we have:
 in the same command line the user can use the different options that belong to each command, for example:
 - ls -la where "-la" is the ls option to print a list with specifications and hidden files.
 
-# AUTHOR
+# AUTHORS
 
 Christian bedoya <1642@holbertonschool.com> | 
 Daniel Lorenzo <2054@holbertonschool.com>
