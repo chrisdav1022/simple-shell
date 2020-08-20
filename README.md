@@ -20,20 +20,31 @@ To install the simple shell developed in the project:
 
 2- compile the file using <gcc file.c -Wall -Werror -Wextra and -pedantic -o file>, where file is the name of the compiled file.
 
-3- run the compiled file using ./file.
+3- Use the shell in non-interactive mode:
 
-
+```bash
+Example: 
+$ echo "/bin/ls" | ./hsh
+AUTHORS  README.md  builtin_shell.c  holberton.h  hsh  loop_shell.c  man_1_simple_shell  path.c  simple_shell.c  strings_1.c
+```
+4- Use the shell in interactive mode:
+```bash
+Example: 
+$ ./hsh
+($) /bin/ls
+AUTHORS  README.md  builtin_shell.c  holberton.h  hsh  loop_shell.c  man_1_simple_shell  path.c  simple_shell.c  strings_1.c
+```
 
 # USAGE EXAMPLES
 
 Initially, the user enters the command to execute.
 Among the most used commands we have:
 - ls: lists
-- cd: enter a directory
 - pwd: print the working directory
+- env: prints the envoiroment variables
 - rm: delete files and directories
-- mv: move or rename files or folders
-- mkdir: create new folders
+- exit: exits the shell
+
 in the same command line the user can use the different options that belong to each command, for example:
 - ls -la where "-la" is the ls option to print a list with specifications and hidden files.
 
