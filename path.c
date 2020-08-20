@@ -1,107 +1,95 @@
 #include "holberton.h"
+
 /**
- * findpath - searches the environment for PATH
- * Return: NULL
+ * _getenv - get a value of a variable
+ * @name: Constant with the name of environment variable to search
+ * Return: the variable
  */
-char *findpath(void)
+char *_getenv(const char *name)
 {
-	char *token = NULL, *copy = NULL;
-	char keyword[] = "PATH";
 	int i = 0;
+	char *tmp, *ptr;
 
 	while (environ[i] != NULL)
 	{
-		copy  = _strdup(environ[i]);
-		if (copy == NULL)
-			return (NULL);
-
-		token = strtok(copy, "=");
-		if (strcmp(token, keyword) == 0)
+		if (_strcmp((char *)name, environ[i]) == 0)
 		{
-			free(copy);
-			return (environ[i]);
+			tmp = environ[i];
+			ptr = strtok(tmp, "=");
+			ptr = strtok(NULL, "\0");
+			break;
 		}
 		i++;
-		free(copy);
 	}
-	return (NULL);
+	return (ptr);
 }
 /**
- * fix_token - Function concatenates 2 strings adding a backslash and null byte
- *
- * @args: arguments given
- * @token: original token
- * Return: copy of @token
+ * add_path - add node of each path at the end
+ * @head: Address of linked list
+ * @str: String to copy and create node
+ * Return: Address of linked list with the new node
  */
-char *fix_token(char *args, char *token)
+path_t *add_path(path_t **head, const char *str)
 {
-	char *new_token = NULL;
-	int i = 0, j = 0;
-	unsigned int total_strlen = 0;
+	path_t *tmp;
+	path_t *last = *head;
 
-	if (args == NULL || token == NULL)
+	tmp = malloc(sizeof(path_t));
+	if (tmp == NULL)
 		return (NULL);
 
-	total_strlen = (_strlen(args)) + (_strlen(token));
-	new_token = malloc((total_strlen + 2) * sizeof(char *));
-	if (new_token == NULL)
-		return (NULL);
-
-	while (token[i] != '\0')
+	if (str != NULL)
+		tmp->path = _strdup((char *)str);
+	else
+		tmp->path = "(nil)";
+	tmp->next = NULL;
+	if (*head == NULL)
 	{
-		new_token[i] = token[i];
-		i++;
+		*head = tmp;
+		return (tmp);
 	}
-	new_token[i] = '/';
-	while (args[j] != '\0')
-	{
-		new_token[i + 1] = args[j];
-		j++;
-		i++;
-	}
-	new_token[i + 1] = '\0';
-	return (new_token);
+	while (last->next != NULL)
+		last = last->next;
+	last->next = tmp;
+	return (tmp);
 }
 /**
- * pathfinder - finds the directory a command is located
- *
- * @args: arguments given
- * Return: NULL
+ * do_link - creates nodes for directories in path and keep
+ * until finish the program
+ * Return: linked list with the new node
  */
-char *pathfinder(char *args)
+path_t *do_link()
 {
-	char *dir = NULL;
-	char *token = NULL, *new_token = NULL, *holder_token = NULL;
-	struct stat st;
+	const char *name = "PATH";
+	char *nodevalue;
+	path_t *head;
 
-	if (args == NULL)
-		return (NULL);
-
-	dir = findpath();
-	if (dir == NULL)
-		return (NULL);
-	dir = _strdup(dir);
-	if (dir == NULL)
-		return (NULL);
-
-	token = strtok(dir, "=:");
-	while (token != NULL)
+	head = NULL;
+	nodevalue = _getenv(name);
+	nodevalue = strtok(nodevalue, ":");
+	while (nodevalue != NULL)
 	{
-		holder_token = token;
-		new_token = fix_token(args, holder_token);
-		if (new_token == NULL)
-		{
-			free(dir);
-			return (NULL);
-		}
-		if (stat(new_token, &st) == 0)
-		{
-			free(dir);
-			return (new_token);
-		}
-		token = strtok(NULL, "=:");
-		free(new_token);
+		add_path(&head, nodevalue);
+		nodevalue = strtok(NULL, ":");
 	}
-	free(dir);
-	return (NULL);
+	return (head);
 }
+
+/**
+ * free_list - free the memory of each node in the list
+ * @head: Address of the list
+ */
+void free_list(path_t *head)
+{
+	path_t *current = head;
+	path_t *next;
+
+	while (current != NULL)
+	{
+		next = current->next;
+		free(current->path);
+		free(current);
+		current = next;
+	}
+}
+

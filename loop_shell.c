@@ -1,82 +1,57 @@
 #include "holberton.h"
 /**
- * _getline - function that reads line from stdin
- * @buffer: line that is readed
- * @size: size of the buffer
- * Return: pointer to line
- **/
-char *_getline(char *buffer, size_t size)
+ * _signal - block signal of Ctrl + C
+ * @s: signal to verify
+ * Return: Always 0.
+ */
+void _signal(int s)
 {
-int checker = 0;
-
-checker = getline(&buffer, &size, stdin);
-
-if (checker == EOF) /* checking EOF */
-{
-free(buffer); /* free pointer memory */
-write(STDOUT_FILENO, "\n", 1); /* puts new line and exit */
-exit(0);
+	(void)s;
+	write(STDOUT_FILENO, "\n($) ", 5);
 }
-if (checker == 1 || checker == -1 || buffer == NULL)/*checking null & errors*/
-{
-free(buffer); /* free pointer memory and return */
-return (NULL);
-}
-return (buffer);
-}
-
 /**
- * _tokenline - functions that tokeize a line
- * @buffer: buffer from _getline
- * Return: tokens (command + arguments)
- **/
-char **_tokenline(char *buffer)
+ * execute - evaluate the input and execute the program
+ * depending arguments
+ * @input: Pointer to pointer arguments
+ * Return: 0 is success or -1 is error
+ */
+int execute(char *input)
 {
-char *token = NULL;
-char **tokens = NULL;
-int iterator = 0;
+	int k = 0;
+	int stat = 0;
+	char **argv;
 
-tokens = malloc(sizeof(char *) * 5); /* memory for command + arguments */
-if (tokens == NULL) /* checking error on memry allocation */
-return (NULL);
-
-token = strtok(buffer, DELIM); /* DELIM = \n \t \r */
-while (token != NULL)
-{
-tokens[iterator] = token;
-token = strtok(NULL, DELIM);
-iterator++;
+	if (_strcmp(input, "env\n") == 0)
+	{
+		print_env();
+		return (0);
+	}
+	else
+	{
+		argv = do_arguments(input);
+		if (argv[0][0] == '/' || argv[0][0] == '.')
+			stat = execve(argv[0], argv, NULL);
+		else
+			stat = execute_path(argv[0], argv);
+	}
+	while (argv[k] != NULL)
+	{
+		free(argv[k]);
+		k++;
+	}
+	free(argv);
+	return (stat);
 }
-tokens[iterator] = NULL;
-return (tokens);
-}
-
 /**
- * exe_command - function that execute commands
- * @args: command to execute
- * Return: 0 on success | -1 on error
- **/
-int exe_command(char **args)
+ * print_env - print the environment variables
+ */
+void print_env(void)
 {
-pid_t pid_child = 0;
-int status = 0;
+	int i = 0;
 
-if (args == NULL) /* checking for command exist */
-return (-1);
-
-pid_child = fork(); /* fork process */
-if (pid_child < 0) /* checking for error on fork */
-{
-write(STDOUT_FILENO, "Fork error", 10);
-return (-1);
-}
-else if (pid_child == 0)
-{
-if (execve(args[0], args, NULL) == -1)
-return (-1);
-}
-else
-pid_child = wait(&status);
-
-return (0);
+	while (environ[i] != NULL)
+	{
+		dprintf(1, "%s\n", environ[i]);
+		i++;
+	}
 }

@@ -1,60 +1,84 @@
 #include "holberton.h"
 /**
- * main - hsh shell main function
- *@void: void args
+ * main - main
+ * @argc: void
+ * @argv: args
  * Return: 0
- */
-int main(void)
+ **/
+int main(int argc, char **argv)
 {
-char *buffer = NULL, *command = NULL;
-char **args = NULL;
-size_t size = 0;
-struct stat st;
-int iterator = 1, run = 0;
+	int status = 0, errors = 1, len = 0;
+	pid_t child;
+	char *buffer = NULL;
+	size_t lenb = 0;
+	(void)argc;
 
-	while (1) /* infinite loop for the shell */
-	{	write(STDOUT_FILENO, "hsh$ ", 5); /* prints the prompt */
-		buffer = _getline(buffer, size); /* calls function to read the line */
-		if (buffer == NULL)
-		continue;
-		args = _tokenline(buffer); /* calls function to tokenize the line readed */
-		command = args[0]; /* command readed */
-
-		if (builtins(args, buffer) == -1) /* struct reached null / matches */
+	while (1)
+	{
+		if (isatty(0) == 1)
+			write(STDOUT_FILENO, "($) ", 4);
+		signal(SIGINT, _signal);
+		len = getline(&buffer, &lenb, stdin);
+		if (((int)len == -1) || (_strcmp(buffer, "exit\n") == 0))
 		{
-			if (stat(args[0], &st) == 0)
-			run = exe_command(args);
-			else if (stat(args[0], &st) == -1)
-			{	args[0] = pathfinder(args[0]);
-				if (args[0] == NULL)
+			if ((int)len == -1 && isatty(0) == 1)
+				write(1, "\n", 1);
+			break;
+		}
+		if (_strcmp(buffer, "\n") == 0 || val_spaces(buffer) == 0)
+			continue;
+		child = fork();
+		if (child == -1)
+			free(buffer), perror("Error:");
+		if (child == 0)
+		{
+			if (execute(buffer) == -1)
 			{
-				print_error(command);
-				iterator++;
+				write_error(argv[0], &buffer, errors);
+				free(buffer);
+				exit(127);
 			}
-			else
-run = exe_command(args);
-}
-if (run == -1)
-{	print_error(command);
-iterator++;
-}
-free(args); /* free pointers */
-args = NULL;
-free(buffer);
-buffer = NULL;
-}
-}
-return (0);
+			exit(EXIT_SUCCESS);
+		}
+		else
+			wait(&status), errors++;
+	}
+	free(buffer);
+	return (0);
 }
 
 /**
- * print_error - prints error message
- * @command: command with error
- * Return: void
- **/
-void print_error(char *command)
+ * write_error - write an error when no founds a file or directory
+ * @name: name of executable
+ * @buffer: address of command searched to execute and no found
+ * @nerrors: Number of the error
+ */
+void write_error(char *name, char **buffer, size_t nerrors)
 {
-write(STDOUT_FILENO, "hsh$: command not found: ", 25);
-write(STDOUT_FILENO, command, _strlen(command));
-write(STDOUT_FILENO, "\n", 1);
+(void)nerrors;
+	write(2, name, _strlen(name));
+	write(2, ": ", 2);
+	write(2, *buffer, _strlen(*buffer));
+	write(2, ": No such file or directory\n", 28);
+}
+
+/**
+ * val_spaces - validate is buffer contains only spaces
+ * @buffer: string to validate
+ * Return: 0 is only spaces or 1 is contain something more
+ */
+int val_spaces(char *buffer)
+{
+	int i = 0, nspaces = 0;
+	int len = _strlen(buffer);
+
+	while (buffer[i] != '\0')
+	{
+		if (buffer[i] == 32)
+			nspaces++;
+		i++;
+	}
+	if (nspaces == (len - 1))
+		return (0);
+	return (1);
 }
